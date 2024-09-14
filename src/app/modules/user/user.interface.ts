@@ -8,10 +8,4 @@ export type TUser = {
     isDeleted: boolean;
 };
 
-export type TUserRoles = {
-    admin: 'admin';
-    rider: 'rider';
-    superAdmin: 'superAdmin';
-};
-
-export type TUserRoleEnum = ['admin', 'rider', 'superAdmin'];
+export type TUserRoleEnum = (keyof typeof UserConstants.UserRoles)[];

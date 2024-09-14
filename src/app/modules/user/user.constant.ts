@@ -1,10 +1,10 @@
-import { TUserRoleEnum, TUserRoles } from './user.interface';
+import { TUserRoleEnum } from './user.interface';
 
-const UserRoles: TUserRoles = {
+const UserRoles = {
     admin: 'admin',
     rider: 'rider',
     superAdmin: 'superAdmin',
-};
+} as const;
 
 const UserRoleEnums: TUserRoleEnum = ['admin', 'rider', 'superAdmin'];
 
