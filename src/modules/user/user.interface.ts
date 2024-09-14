@@ -11,6 +11,7 @@ export type TUser = {
 export type TUserRoles = {
     admin: 'admin';
     rider: 'rider';
+    superAdmin: 'superAdmin';
 };
 
-export type TUserRoleEnum = ['admin', 'rider'];
+export type TUserRoleEnum = ['admin', 'rider', 'superAdmin'];

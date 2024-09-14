@@ -17,7 +17,7 @@ const adminSchema = new Schema<TAdmin>({
     },
     address: {
         type: String,
-        required: true,
+        default: '',
     },
     contactNo: {
         type: String,
