@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
-import { config } from '../../app/config';
-import catchAsync from '../../app/utils/catchAsync';
-import sendResponse from '../../app/utils/sendResponse';
+import { config } from '../../config';
+import catchAsync from '../../utils/catchAsync';
+import sendResponse from '../../utils/sendResponse';
 import AuthServices from './auth.service';
 
 const login = catchAsync(async (req, res) => {

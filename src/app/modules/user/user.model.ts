@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { model, Schema } from 'mongoose';
-import { config } from '../../app/config';
+import { config } from '../../config';
 import { UserConstants } from './user.constant';
 import { TUser } from './user.interface';
 

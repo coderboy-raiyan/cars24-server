@@ -2,6 +2,7 @@ import http from 'http';
 import mongoose from 'mongoose';
 import app from './app';
 import { config } from './app/config';
+import seedSuperUser from './app/DB';
 
 const server = http.createServer(app);
 
@@ -12,6 +13,7 @@ async function bootstrap() {
         await mongoose.connect(config.DATABASE_URL);
         console.log('DB connected successfully...');
 
+        seedSuperUser();
         server.listen(PORT, () => {
             console.log('Server is listening on PORT', PORT);
         });

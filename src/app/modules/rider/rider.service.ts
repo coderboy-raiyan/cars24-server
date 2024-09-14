@@ -1,22 +1,21 @@
 import { StatusCodes } from 'http-status-codes';
 import mongoose from 'mongoose';
-import AppError from '../../app/errors/AppError';
-import { generateAccessToken } from '../../app/utils/jwt';
+import AppError from '../../errors/AppError';
+import { generateAccessToken } from '../../utils/jwt';
 import { UserConstants } from '../user/user.constant';
 import User from '../user/user.model';
-import { TAdmin } from './admin.interface';
-import Admin from './admin.model';
+import { TRider } from './rider.interface';
+import Rider from './rider.model';
 
-const registerAdminIntoDB = async (payload: TAdmin & { password: string }) => {
+const registerRidersIntoDB = async (payload: TRider & { password: string }) => {
     const isUserExits = await User.findOne({ email: payload?.email });
 
     if (isUserExits) {
         throw new AppError(StatusCodes.BAD_REQUEST, 'Already have an account. Please Sign up!');
     }
+    const rider = await Rider.findOne({ email: payload?.email });
 
-    const admin = await Admin.findOne({ email: payload?.email });
-
-    if (admin) {
+    if (rider) {
         throw new AppError(
             StatusCodes.INTERNAL_SERVER_ERROR,
             'Already have an account. Please Sign in!'
@@ -31,7 +30,7 @@ const registerAdminIntoDB = async (payload: TAdmin & { password: string }) => {
         const userData = {
             email: payload?.email,
             password: payload?.password,
-            role: UserConstants.UserRoles.admin,
+            role: UserConstants.UserRoles.rider,
         };
 
         const user = await User.create([userData], { session });
@@ -39,22 +38,22 @@ const registerAdminIntoDB = async (payload: TAdmin & { password: string }) => {
             throw new AppError(StatusCodes.BAD_REQUEST, "Couldn't create user!");
         }
 
-        const adminData = { ...payload, user: user[0]?._id };
-        delete adminData?.password;
-        const admin = await Admin.create([adminData], { session });
+        const riderData = { ...payload, user: user[0]?._id };
+        delete riderData?.password;
+        const rider = await Rider.create([riderData], { session });
 
-        if (!admin) {
+        if (!rider) {
             throw new AppError(StatusCodes.BAD_REQUEST, "Couldn't create rider!");
         }
 
         const accessToken = generateAccessToken({
-            _id: admin[0]?._id,
-            email: admin[0]?.email,
+            _id: rider[0]?._id,
+            email: rider[0]?.email,
             role: user[0]?.role,
         });
         const refreshToken = generateAccessToken({
-            _id: admin[0]?._id,
-            email: admin[0]?.email,
+            _id: rider[0]?._id,
+            email: rider[0]?.email,
             role: user[0]?.role,
         });
 
@@ -72,6 +71,6 @@ const registerAdminIntoDB = async (payload: TAdmin & { password: string }) => {
     }
 };
 
-export const AdminServices = {
-    registerAdminIntoDB,
+export const RiderServices = {
+    registerRidersIntoDB,
 };

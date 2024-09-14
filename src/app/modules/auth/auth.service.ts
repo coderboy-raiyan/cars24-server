@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import { StatusCodes } from 'http-status-codes';
-import AppError from '../../app/errors/AppError';
-import { generateAccessToken } from '../../app/utils/jwt';
+import AppError from '../../errors/AppError';
+import { generateAccessToken } from '../../utils/jwt';
 import Admin from '../admin/admin.model';
 import Rider from '../rider/rider.model';
 import { UserConstants } from '../user/user.constant';
@@ -34,6 +34,9 @@ const loginUserFromDB = async (payload: { email: string; password: string }) => 
             authorizedUser = await Rider.findById(user?._id);
             break;
 
+        case UserConstants.UserRoles.superAdmin:
+            authorizedUser = user;
+            break;
         default:
             break;
     }
