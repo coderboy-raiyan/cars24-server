@@ -1,4 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary';
+import fs from 'fs';
 import { config } from '../config';
 
 cloudinary.config({
@@ -9,12 +10,20 @@ cloudinary.config({
 
 export async function uploadToCloudinary(path: string) {
     try {
-        const result = await cloudinary.uploader.upload(path);
+        const result = await cloudinary.uploader.upload(path, {
+            folder: 'cars24',
+        });
+        fs.unlink(path, (err) => {
+            if (err) {
+                throw err;
+            }
+        });
         return {
             secure_url: result?.secure_url,
             public_id: result?.public_id,
         };
     } catch (error) {
+        fs.unlinkSync(path);
         throw new Error(error);
     }
 }

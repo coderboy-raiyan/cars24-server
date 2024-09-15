@@ -13,6 +13,10 @@ const carSchema = new Schema<TCar>({
         enum: CarConstants.CarTypeEnum,
         required: true,
     },
+    slug: {
+        type: String,
+        required: true,
+    },
     color: [
         {
             type: String,
@@ -31,7 +35,18 @@ const carSchema = new Schema<TCar>({
             required: true,
         },
     ],
-    images: [],
+    images: [
+        {
+            secure_url: {
+                type: String,
+                required: true,
+            },
+            public_id: {
+                type: String,
+                required: true,
+            },
+        },
+    ],
     isDeleted: {
         type: Boolean,
         default: false,
