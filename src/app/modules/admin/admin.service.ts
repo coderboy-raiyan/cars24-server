@@ -49,12 +49,12 @@ const registerAdminIntoDB = async (payload: TAdmin & { password: string }) => {
         }
 
         const accessToken = generateAccessToken({
-            _id: admin[0]?._id,
+            _id: user[0]?._id,
             email: admin[0]?.email,
             role: user[0]?.role,
         });
         const refreshToken = generateAccessToken({
-            _id: admin[0]?._id,
+            _id: user[0]?._id,
             email: admin[0]?.email,
             role: user[0]?.role,
         });

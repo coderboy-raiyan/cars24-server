@@ -47,12 +47,12 @@ const registerRidersIntoDB = async (payload: TRider & { password: string }) => {
         }
 
         const accessToken = generateAccessToken({
-            _id: rider[0]?._id,
+            _id: user[0]?._id,
             email: rider[0]?.email,
             role: user[0]?.role,
         });
         const refreshToken = generateAccessToken({
-            _id: rider[0]?._id,
+            _id: user[0]?._id,
             email: rider[0]?.email,
             role: user[0]?.role,
         });

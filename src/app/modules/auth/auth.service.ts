@@ -42,12 +42,12 @@ const loginUserFromDB = async (payload: { email: string; password: string }) => 
     }
 
     const accessToken = generateAccessToken({
-        _id: authorizedUser?._id,
+        _id: user?._id,
         email: authorizedUser?.email,
         role: user?.role,
     });
     const refreshToken = generateAccessToken({
-        _id: authorizedUser?._id,
+        _id: user?._id,
         email: authorizedUser?.email,
         role: user?.role,
     });

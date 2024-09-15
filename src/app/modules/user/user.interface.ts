@@ -9,3 +9,4 @@ export type TUser = {
 };
 
 export type TUserRoleEnum = (keyof typeof UserConstants.UserRoles)[];
+export type TUserRole = keyof typeof UserConstants.UserRoles;
