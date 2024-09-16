@@ -33,4 +33,32 @@ CarRoutes.post(
     CarControllers.createCar
 );
 
+CarRoutes.get('/', CarControllers.getAllCars);
+CarRoutes.get('/:id', CarControllers.getSingleCars);
+
+CarRoutes.patch(
+    '/:id',
+    upload.array('files', 5),
+    catchAsync(async (req, res, next) => {
+        try {
+            if (req?.body?.data) {
+                req.body = await CarValidations.updateCarValidationSchema.parseAsync(
+                    JSON.parse(req.body.data)
+                );
+            }
+        } catch (error) {
+            for (const file of req.files as Express.Multer.File[]) {
+                fs.unlink(file.path, (err) => {
+                    if (err) {
+                        next(err);
+                    }
+                });
+            }
+            throw new Error(error);
+        }
+        next();
+    }),
+    CarControllers.updateCar
+);
+
 export default CarRoutes;
