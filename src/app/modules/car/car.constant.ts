@@ -11,6 +11,8 @@ const CarType = {
     sedan: 'sedan',
 } as const;
 
+const CarSearchFields = ['name', 'slug', 'status', 'carType'];
+
 const CarTypeEnum: TCarTypesEnum = ['suv', 'hybrid', 'sedan'];
 const CarStatusEnum: TCarStatusEnum = ['available', 'unavailable'];
 
@@ -19,4 +21,5 @@ export const CarConstants = {
     CarType,
     CarTypeEnum,
     CarStatusEnum,
+    CarSearchFields,
 };

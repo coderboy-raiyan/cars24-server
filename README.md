@@ -1,4 +1,4 @@
-<h1 align="center">3. Car Rental Reservation System</h1>
+<h1 align="center">Car Rental Reservation System</h1>
 
 ---
 

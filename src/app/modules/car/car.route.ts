@@ -38,6 +38,7 @@ CarRoutes.get('/:id', CarControllers.getSingleCars);
 
 CarRoutes.patch(
     '/:id',
+    auth(UserConstants.UserRoles.superAdmin, UserConstants.UserRoles.admin),
     upload.array('files', 5),
     catchAsync(async (req, res, next) => {
         try {
@@ -59,6 +60,12 @@ CarRoutes.patch(
         next();
     }),
     CarControllers.updateCar
+);
+
+CarRoutes.delete(
+    '/:id',
+    auth(UserConstants.UserRoles.superAdmin, UserConstants.UserRoles.admin),
+    CarControllers.deleteCar
 );
 
 export default CarRoutes;

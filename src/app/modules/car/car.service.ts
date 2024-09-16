@@ -1,7 +1,9 @@
 import { StatusCodes } from 'http-status-codes';
+import QueryBuilder from '../../builder/QueryBuilder';
 import AppError from '../../errors/AppError';
 import { deleteFromCloudinary, uploadToCloudinary } from '../../utils/cloudinary';
 import slugGenerator from '../../utils/slugGenerator';
+import { CarConstants } from './car.constant';
 import { TCar, TCarImages } from './car.interface';
 import Car from './car.model';
 
@@ -33,8 +35,14 @@ const createCarInToDB = async (payload: TCar, files: Express.Multer.File[]) => {
     }
 };
 
-const getAllCarsFromDB = async () => {
-    const result = await Car.find({});
+const getAllCarsFromDB = async (query: Record<string, unknown>) => {
+    const CarModelQuery = new QueryBuilder(Car, query)
+        .search(CarConstants.CarSearchFields)
+        .filter()
+        .paginate()
+        .sort()
+        .fields();
+    const result = await CarModelQuery.ModelQuery;
     return result;
 };
 const getSingleCarsFromDB = async (id: string) => {
@@ -180,9 +188,15 @@ const updateCarIntoDB = async (
     return car;
 };
 
+const deleteCarFromDB = async (id: string) => {
+    const result = await Car.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
+    return result;
+};
+
 export const CarServices = {
     createCarInToDB,
     getAllCarsFromDB,
     updateCarIntoDB,
     getSingleCarsFromDB,
+    deleteCarFromDB,
 };
