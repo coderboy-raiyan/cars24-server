@@ -189,8 +189,20 @@ const updateCarIntoDB = async (
 };
 
 const deleteCarFromDB = async (id: string) => {
-    const result = await Car.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
-    return result;
+    const result = await Car.findByIdAndUpdate(
+        id,
+        { isDeleted: true, status: CarConstants.CarStatus.unavailable },
+        { new: true }
+    );
+
+    try {
+        for (const uploadedImg of result.images) {
+            await deleteFromCloudinary(uploadedImg?.public_id);
+        }
+        return result;
+    } catch (error) {
+        throw new Error(error);
+    }
 };
 
 export const CarServices = {
