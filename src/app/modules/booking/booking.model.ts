@@ -4,7 +4,7 @@ import { TBooking } from './booking.interface';
 const bookingSchema = new Schema<TBooking>(
     {
         date: {
-            type: String,
+            type: Date,
             required: true,
         },
         user: {
@@ -26,6 +26,10 @@ const bookingSchema = new Schema<TBooking>(
         totalCoast: {
             type: Number,
             default: 0,
+        },
+        isApproved: {
+            type: Boolean,
+            default: false,
         },
     },
     { timestamps: true }
