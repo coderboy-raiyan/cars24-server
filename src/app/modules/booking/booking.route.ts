@@ -10,5 +10,7 @@ BookingRoutes.post(
     validateRequest(BookingValidations.createBookingValidationSchema),
     BookingControllers.createBooking
 );
+BookingRoutes.get('/upcoming/:id', BookingControllers.getUsersUpcomingBookings);
+BookingRoutes.get('/', BookingControllers.getAllBookings);
 
 export default BookingRoutes;

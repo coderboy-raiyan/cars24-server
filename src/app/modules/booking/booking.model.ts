@@ -1,15 +1,21 @@
 import { model, Schema } from 'mongoose';
+import { BookingConstants } from './booking.constant';
 import { TBooking } from './booking.interface';
 
 const bookingSchema = new Schema<TBooking>(
     {
         date: {
-            type: Date,
+            type: String,
             required: true,
         },
         user: {
             type: Schema.Types.ObjectId,
             required: true,
+        },
+        status: {
+            type: String,
+            enum: BookingConstants.BookingStatusEnum,
+            default: 'pending',
         },
         car: {
             type: Schema.Types.ObjectId,
