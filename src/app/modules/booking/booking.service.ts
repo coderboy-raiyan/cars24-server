@@ -1,11 +1,15 @@
 import { format } from 'date-fns';
 import { StatusCodes } from 'http-status-codes';
+import { JwtPayload } from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import QueryBuilder from '../../builder/QueryBuilder';
 import AppError from '../../errors/AppError';
 import { CarConstants } from '../car/car.constant';
 import Car from '../car/car.model';
+import { UserConstants } from '../user/user.constant';
+import { TUser } from '../user/user.interface';
 import User from '../user/user.model';
+import { BookingConstants } from './booking.constant';
 import { TBooking } from './booking.interface';
 import Booking from './booking.model';
 
@@ -59,13 +63,82 @@ const getUsersUpcomingBookings = async (id: string) => {
     const bookings = await Booking.find({
         user: id,
         date: { $gte: format(new Date(), 'yyyy-MM-dd') },
-        startTime: { $gte: format(new Date(), 'HH:mm') },
+        $and: [
+            {
+                status: {
+                    $ne: BookingConstants.BookingStatus.completed,
+                },
+            },
+            {
+                status: {
+                    $ne: BookingConstants.BookingStatus.approved,
+                },
+            },
+        ],
     });
     return bookings;
+};
+
+const updateBookingInToDB = async (
+    id: string,
+    payload: Partial<TBooking>,
+    user: TUser | JwtPayload
+) => {
+    const booking = await Booking.findById(id);
+
+    if (!booking) {
+        throw new AppError(StatusCodes.NOT_FOUND, 'Booking not found!');
+    }
+
+    switch (booking?.status) {
+        case BookingConstants.BookingStatus.completed:
+            throw new AppError(StatusCodes.NOT_ACCEPTABLE, "Can't update completed booking!");
+        case BookingConstants.BookingStatus.approved:
+            throw new AppError(StatusCodes.NOT_ACCEPTABLE, "Can't update approved booking!");
+        case BookingConstants.BookingStatus.canceled:
+            throw new AppError(StatusCodes.NOT_ACCEPTABLE, "Can't update canceled booking!");
+
+        default:
+            break;
+    }
+
+    let result;
+
+    if (
+        user?.role === UserConstants.UserRoles.admin ||
+        user?.role === UserConstants.UserRoles.superAdmin
+    ) {
+        if (payload?.status === 'canceled') {
+            payload.isApproved = false;
+        }
+        if (payload?.status === 'approved') {
+            payload.isApproved = true;
+        }
+        result = await Booking.findByIdAndUpdate(id, payload, { new: true });
+    } else {
+        const limitField = { ...payload };
+        delete limitField?.isApproved;
+        delete limitField?.status;
+        delete limitField?.endTime;
+
+        result = await Booking.findByIdAndUpdate(id, limitField, { new: true });
+    }
+
+    return result;
+};
+
+const deleteBookingFromDB = async (id: string) => {
+    const result = await Booking.findByIdAndDelete(id);
+    if (!result) {
+        throw new AppError(StatusCodes.NOT_FOUND, 'Booking not found!');
+    }
+    return result;
 };
 
 export const BookingServices = {
     createBookingsInToDB,
     getAllBookingsFromDB,
     getUsersUpcomingBookings,
+    updateBookingInToDB,
+    deleteBookingFromDB,
 };

@@ -1,11 +1,13 @@
 import { TBookingStatusEnum } from './booking.interface';
 
 const BookingStatus = {
-    done: 'done',
+    completed: 'completed',
     pending: 'pending',
+    approved: 'approved',
+    canceled: 'canceled',
 } as const;
 
-const BookingStatusEnum: TBookingStatusEnum = ['done', 'pending'];
+const BookingStatusEnum: TBookingStatusEnum = ['completed', 'pending', 'approved', 'canceled'];
 
 export const BookingConstants = {
     BookingStatus,
