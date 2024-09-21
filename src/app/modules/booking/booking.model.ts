@@ -10,6 +10,7 @@ const bookingSchema = new Schema<TBooking>(
         },
         user: {
             type: Schema.Types.ObjectId,
+            ref: 'User',
             required: true,
         },
         status: {
@@ -19,6 +20,7 @@ const bookingSchema = new Schema<TBooking>(
         },
         car: {
             type: Schema.Types.ObjectId,
+            ref: 'Car',
             required: true,
         },
         startTime: {

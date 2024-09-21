@@ -50,6 +50,7 @@ const getAllCarsFromDB = async (query: Record<string, unknown>) => {
     const result = await CarModelQuery.ModelQuery;
     return result;
 };
+
 const getSingleCarsFromDB = async (id: string) => {
     const result = await Car.findById(id);
     return result;
@@ -215,6 +216,10 @@ const returnCar = async (payload: { bookingId: string; endTime: string }, user: 
 
     if (!booking) {
         throw new AppError(StatusCodes.NOT_FOUND, 'Booking not found!');
+    }
+
+    if (!booking?.isApproved) {
+        throw new AppError(StatusCodes.NOT_ACCEPTABLE, 'Booking is not approved yet!');
     }
 
     switch (booking?.status) {

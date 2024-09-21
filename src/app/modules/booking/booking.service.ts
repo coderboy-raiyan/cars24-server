@@ -111,7 +111,7 @@ const updateBookingInToDB = async (
         if (payload?.status === 'canceled') {
             payload.isApproved = false;
         }
-        if (payload?.status === 'approved') {
+        if (payload?.status === 'approved' || payload?.status === 'completed') {
             payload.isApproved = true;
         }
         result = await Booking.findByIdAndUpdate(id, payload, { new: true });
