@@ -1,11 +1,16 @@
 import { StatusCodes } from 'http-status-codes';
+import mongoose from 'mongoose';
 import QueryBuilder from '../../builder/QueryBuilder';
 import AppError from '../../errors/AppError';
 import { deleteFromCloudinary, uploadToCloudinary } from '../../utils/cloudinary';
 import slugGenerator from '../../utils/slugGenerator';
+import { BookingConstants } from '../booking/booking.constant';
+import Booking from '../booking/booking.model';
+import { TUser } from '../user/user.interface';
 import { CarConstants } from './car.constant';
 import { TCar, TCarImages } from './car.interface';
 import Car from './car.model';
+import { CarUtils } from './car.utils';
 
 const createCarInToDB = async (payload: TCar, files: Express.Multer.File[]) => {
     const isCarExists = await Car.findOne({ name: payload?.name });
@@ -205,10 +210,83 @@ const deleteCarFromDB = async (id: string) => {
     }
 };
 
+const returnCar = async (payload: { bookingId: string; endTime: string }, user: TUser) => {
+    const booking = await Booking.findById(payload?.bookingId);
+
+    if (!booking) {
+        throw new AppError(StatusCodes.NOT_FOUND, 'Booking not found!');
+    }
+
+    switch (booking?.status) {
+        case BookingConstants.BookingStatus.completed:
+            throw new AppError(StatusCodes.NOT_ACCEPTABLE, "Can't return completed booking!");
+        case BookingConstants.BookingStatus.approved:
+            throw new AppError(StatusCodes.NOT_ACCEPTABLE, "Can't return approved booking!");
+        case BookingConstants.BookingStatus.canceled:
+            throw new AppError(StatusCodes.NOT_ACCEPTABLE, "Can't return canceled booking!");
+
+        default:
+            break;
+    }
+
+    const car = await Car.findById(booking.car);
+
+    if (!car) {
+        throw new AppError(StatusCodes.NOT_FOUND, 'Car not found!');
+    }
+
+    const session = await mongoose.startSession();
+
+    try {
+        session.startTransaction();
+
+        const paymentData = {
+            startTime: booking?.startTime,
+            endTime: payload?.endTime,
+            booking,
+            car,
+            user,
+        };
+
+        const result = await CarUtils.makeStripePayment(paymentData);
+
+        const updatedBooking = await Booking.findByIdAndUpdate(
+            booking?._id,
+            { status: BookingConstants.BookingStatus.completed },
+            { new: true, session }
+        );
+
+        if (!updatedBooking) {
+            throw new AppError(StatusCodes.INTERNAL_SERVER_ERROR, 'Failed to update booking!');
+        }
+        const updatedCar = await Car.findByIdAndUpdate(
+            car?._id,
+            { status: CarConstants.CarStatus.available },
+            { new: true, session }
+        );
+
+        if (!updatedCar) {
+            throw new AppError(StatusCodes.INTERNAL_SERVER_ERROR, 'Failed to update car!');
+        }
+        await session.commitTransaction();
+        await session.endSession();
+
+        return {
+            id: result?.id,
+            booking: updatedBooking,
+        };
+    } catch (error) {
+        await session.abortTransaction();
+        await session.endSession();
+        throw new Error(error);
+    }
+};
+
 export const CarServices = {
     createCarInToDB,
     getAllCarsFromDB,
     updateCarIntoDB,
     getSingleCarsFromDB,
     deleteCarFromDB,
+    returnCar,
 };

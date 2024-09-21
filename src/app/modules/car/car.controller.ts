@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
+import { TUser } from '../user/user.interface';
 import { CarServices } from './car.service';
 
 const createCar = catchAsync(async (req, res) => {
@@ -52,6 +53,15 @@ const deleteCar = catchAsync(async (req, res) => {
         data: result,
     });
 });
+const returnCar = catchAsync(async (req, res) => {
+    const result = await CarServices.returnCar(req.body, req.user as TUser);
+    sendResponse(res, {
+        success: true,
+        message: 'Car returned Successfully',
+        statusCode: StatusCodes.OK,
+        data: result,
+    });
+});
 
 export const CarControllers = {
     createCar,
@@ -59,4 +69,5 @@ export const CarControllers = {
     updateCar,
     getSingleCars,
     deleteCar,
+    returnCar,
 };

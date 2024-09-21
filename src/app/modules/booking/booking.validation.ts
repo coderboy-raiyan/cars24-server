@@ -1,6 +1,11 @@
 import { isValid, parse } from 'date-fns';
 import { z } from 'zod';
 
+const timeValidationSchema = z.string().refine((val) => {
+    const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
+    return timeRegex.test(val);
+});
+
 const createBookingValidationSchema = z.object({
     body: z.object({
         date: z.string().refine((val) => {
@@ -9,10 +14,7 @@ const createBookingValidationSchema = z.object({
         }),
         user: z.string(),
         car: z.string(),
-        startTime: z.string().refine((val) => {
-            const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
-            return timeRegex.test(val);
-        }),
+        startTime: timeValidationSchema,
     }),
 });
 const updateBookingValidationSchema = z.object({
@@ -25,17 +27,12 @@ const updateBookingValidationSchema = z.object({
             })
             .optional(),
         car: z.string().optional(),
-        startTime: z
-            .string()
-            .refine((val) => {
-                const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
-                return timeRegex.test(val);
-            })
-            .optional(),
+        startTime: timeValidationSchema.optional(),
     }),
 });
 
 export const BookingValidations = {
     createBookingValidationSchema,
     updateBookingValidationSchema,
+    timeValidationSchema,
 };

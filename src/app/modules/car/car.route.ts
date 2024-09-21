@@ -2,6 +2,7 @@ import { Router } from 'express';
 import fs from 'fs';
 import auth from '../../middlewares/auth';
 import upload from '../../middlewares/multer';
+import validateRequest from '../../middlewares/validateRequest';
 import catchAsync from '../../utils/catchAsync';
 import { UserConstants } from '../user/user.constant';
 import { CarControllers } from './car.controller';
@@ -35,6 +36,17 @@ CarRoutes.post(
 
 CarRoutes.get('/', CarControllers.getAllCars);
 CarRoutes.get('/:id', CarControllers.getSingleCars);
+
+CarRoutes.patch(
+    '/return',
+    auth(
+        UserConstants.UserRoles.admin,
+        UserConstants.UserRoles.superAdmin,
+        UserConstants.UserRoles.rider
+    ),
+    validateRequest(CarValidations.returnCarValidationSchema),
+    CarControllers.returnCar
+);
 
 CarRoutes.patch(
     '/:id',

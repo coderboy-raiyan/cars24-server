@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { BookingValidations } from '../booking/booking.validation';
 import { CarConstants } from './car.constant';
 
 const createCarValidationSchema = z.object({
@@ -32,7 +33,15 @@ const updateCarValidationSchema = z.object({
         .optional(),
 });
 
+const returnCarValidationSchema = z.object({
+    body: z.object({
+        bookingId: z.string(),
+        endTime: BookingValidations.timeValidationSchema,
+    }),
+});
+
 export const CarValidations = {
     createCarValidationSchema,
     updateCarValidationSchema,
+    returnCarValidationSchema,
 };
