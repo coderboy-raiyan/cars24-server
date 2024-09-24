@@ -6,6 +6,8 @@ import QueryBuilder from '../../builder/QueryBuilder';
 import AppError from '../../errors/AppError';
 import { CarConstants } from '../car/car.constant';
 import Car from '../car/car.model';
+import { TRider } from '../rider/rider.interface';
+import Rider from '../rider/rider.model';
 import { UserConstants } from '../user/user.constant';
 import { TUser } from '../user/user.interface';
 import User from '../user/user.model';
@@ -13,7 +15,7 @@ import { BookingConstants } from './booking.constant';
 import { TBooking } from './booking.interface';
 import Booking from './booking.model';
 
-const createBookingsInToDB = async (payload: TBooking) => {
+const createBookingsInToDB = async (payload: TBooking & Partial<TRider>) => {
     const user = await User.findById(payload?.user);
 
     if (!user || user?.isDeleted) {
@@ -42,6 +44,23 @@ const createBookingsInToDB = async (payload: TBooking) => {
             { status: CarConstants.CarStatus.unavailable },
             { session }
         );
+
+        const riderDataForBooking = {};
+
+        if (payload?.nidNo) {
+            riderDataForBooking['nidNo'] = payload.nidNo;
+        }
+        if (payload?.passportNo) {
+            riderDataForBooking['passportNo'] = payload.passportNo;
+        }
+        if (payload?.drivingLicense) {
+            riderDataForBooking['drivingLicense'] = payload.drivingLicense;
+        }
+
+        await Rider.findOneAndUpdate({ user: user?._id }, riderDataForBooking, {
+            session,
+            new: true,
+        });
 
         await session.commitTransaction();
         await session.endSession();

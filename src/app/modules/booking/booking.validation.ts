@@ -7,15 +7,25 @@ const timeValidationSchema = z.string().refine((val) => {
 });
 
 const createBookingValidationSchema = z.object({
-    body: z.object({
-        date: z.string().refine((val) => {
-            const parsedDate = parse(val, 'yyyy-MM-dd', new Date());
-            return isValid(parsedDate);
-        }),
-        user: z.string(),
-        car: z.string(),
-        startTime: timeValidationSchema,
-    }),
+    body: z
+        .object({
+            date: z.string().refine((val) => {
+                const parsedDate = parse(val, 'yyyy-MM-dd', new Date());
+                return isValid(parsedDate);
+            }),
+            user: z.string(),
+            car: z.string(),
+            nidNo: z.string().optional(),
+            passportNo: z.string().optional(),
+            drivingLicense: z.string(),
+            startTime: timeValidationSchema,
+        })
+        .refine(
+            (data) => {
+                return !data?.nidNo || !data?.passportNo;
+            },
+            { message: 'Please provide your NID or Passport Number!' }
+        ),
 });
 const updateBookingValidationSchema = z.object({
     body: z.object({

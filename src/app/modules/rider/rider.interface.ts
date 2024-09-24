@@ -7,4 +7,7 @@ export type TRider = {
     contactNo: string;
     address: string;
     profileImg?: string;
+    nidNo: string;
+    passportNo: string;
+    drivingLicense: string;
 };

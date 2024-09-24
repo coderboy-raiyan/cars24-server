@@ -11,6 +11,18 @@ const riderSchema = new Schema<TRider>({
         type: String,
         required: true,
     },
+    nidNo: {
+        type: String,
+        default: '',
+    },
+    passportNo: {
+        type: String,
+        default: '',
+    },
+    drivingLicense: {
+        type: String,
+        default: '',
+    },
     user: {
         type: String,
         required: true,
