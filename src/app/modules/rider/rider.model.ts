@@ -25,6 +25,7 @@ const riderSchema = new Schema<TRider>({
     },
     user: {
         type: String,
+        ref: 'User',
         required: true,
     },
     address: {

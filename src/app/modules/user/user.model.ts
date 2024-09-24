@@ -10,10 +10,10 @@ const userSchema = new Schema<TUser>({
         required: true,
         unique: true,
     },
-
     password: {
         type: String,
         required: true,
+        select: false,
     },
     isDeleted: {
         type: Boolean,

@@ -13,6 +13,7 @@ const adminSchema = new Schema<TAdmin>({
     },
     user: {
         type: String,
+        ref: 'User',
         required: true,
     },
     address: {

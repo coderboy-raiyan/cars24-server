@@ -8,7 +8,7 @@ import { UserConstants } from '../user/user.constant';
 import User from '../user/user.model';
 
 const loginUserFromDB = async (payload: { email: string; password: string }) => {
-    const user = await User.findOne({ email: payload?.email });
+    const user = await User.findOne({ email: payload?.email }).select('+password');
 
     if (!user) {
         throw new AppError(StatusCodes.BAD_REQUEST, "Don't have an account. Please Sign up!");
