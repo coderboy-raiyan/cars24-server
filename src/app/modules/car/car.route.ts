@@ -39,11 +39,7 @@ CarRoutes.get('/:id', CarControllers.getSingleCars);
 
 CarRoutes.patch(
     '/return',
-    auth(
-        UserConstants.UserRoles.admin,
-        UserConstants.UserRoles.superAdmin,
-        UserConstants.UserRoles.rider
-    ),
+    auth(UserConstants.UserRoles.admin, UserConstants.UserRoles.superAdmin),
     validateRequest(CarValidations.returnCarValidationSchema),
     CarControllers.returnCar
 );

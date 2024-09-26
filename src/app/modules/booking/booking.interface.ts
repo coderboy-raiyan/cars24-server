@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 import { BookingConstants } from './booking.constant';
 
 export type TBookingStatusEnum = (keyof typeof BookingConstants.BookingStatus)[];
+export type TPaymentStatusEnum = (keyof typeof BookingConstants.PaymentStatus)[];
 
 export type TBooking = {
     date: string;
@@ -12,4 +13,5 @@ export type TBooking = {
     endTime: string;
     totalCoast: number;
     isApproved: boolean;
+    paymentStatus: keyof typeof BookingConstants.PaymentStatus;
 };

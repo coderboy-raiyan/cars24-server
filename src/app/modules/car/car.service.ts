@@ -6,11 +6,9 @@ import { deleteFromCloudinary, uploadToCloudinary } from '../../utils/cloudinary
 import slugGenerator from '../../utils/slugGenerator';
 import { BookingConstants } from '../booking/booking.constant';
 import Booking from '../booking/booking.model';
-import { TUser } from '../user/user.interface';
 import { CarConstants } from './car.constant';
 import { TCar, TCarImages } from './car.interface';
 import Car from './car.model';
-import { CarUtils } from './car.utils';
 
 const createCarInToDB = async (payload: TCar, files: Express.Multer.File[]) => {
     const isCarExists = await Car.findOne({ name: payload?.name });
@@ -211,7 +209,7 @@ const deleteCarFromDB = async (id: string) => {
     }
 };
 
-const returnCar = async (payload: { bookingId: string; endTime: string }, user: TUser) => {
+const returnCar = async (payload: { bookingId: string; endTime: string }) => {
     const booking = await Booking.findById(payload?.bookingId);
 
     if (!booking) {
@@ -245,16 +243,6 @@ const returnCar = async (payload: { bookingId: string; endTime: string }, user: 
     try {
         session.startTransaction();
 
-        const paymentData = {
-            startTime: booking?.startTime,
-            endTime: payload?.endTime,
-            booking,
-            car,
-            user,
-        };
-
-        const result = await CarUtils.makeStripePayment(paymentData);
-
         const updatedBooking = await Booking.findByIdAndUpdate(
             booking?._id,
             { status: BookingConstants.BookingStatus.completed },
@@ -277,7 +265,6 @@ const returnCar = async (payload: { bookingId: string; endTime: string }, user: 
         await session.endSession();
 
         return {
-            id: result?.id,
             booking: updatedBooking,
         };
     } catch (error) {

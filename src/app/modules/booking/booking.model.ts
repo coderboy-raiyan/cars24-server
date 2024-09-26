@@ -18,6 +18,11 @@ const bookingSchema = new Schema<TBooking>(
             enum: BookingConstants.BookingStatusEnum,
             default: 'pending',
         },
+        paymentStatus: {
+            type: String,
+            enum: BookingConstants.PaymentStatusEnum,
+            default: 'pending',
+        },
         car: {
             type: Schema.Types.ObjectId,
             ref: 'Car',

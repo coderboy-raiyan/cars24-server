@@ -15,7 +15,7 @@ export const superAdminData = {
 };
 
 const superUser = {
-    email: 'tajkierhaque@gamil.com',
+    email: 'tajkierhaque@gmail.com',
     password: config.SUPER_ADMIN_PASSWORD,
     role: UserConstants.UserRoles.superAdmin,
 };

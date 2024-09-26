@@ -11,17 +11,17 @@ const riderSchema = new Schema<TRider>({
         type: String,
         required: true,
     },
-    nidNo: {
+    nidNumber: {
         type: String,
-        default: '',
+        default: null,
     },
-    passportNo: {
+    passportNumber: {
         type: String,
-        default: '',
+        default: null,
     },
-    drivingLicense: {
+    drivingLicenseNumber: {
         type: String,
-        default: '',
+        default: null,
     },
     user: {
         type: String,
@@ -30,7 +30,7 @@ const riderSchema = new Schema<TRider>({
     },
     address: {
         type: String,
-        default: '',
+        default: null,
     },
     contactNo: {
         type: String,
@@ -38,7 +38,7 @@ const riderSchema = new Schema<TRider>({
     },
     profileImg: {
         type: String,
-        default: '',
+        default: null,
     },
 });
 
