@@ -21,6 +21,12 @@ BookingRoutes.patch(
     validateRequest(BookingValidations.updateBookingValidationSchema),
     BookingControllers.updateBookings
 );
+BookingRoutes.patch(
+    '/payment/:id',
+    auth(rider),
+    validateRequest(BookingValidations.bookingPaymentValidationSchema),
+    BookingControllers.bookingPayment
+);
 BookingRoutes.delete('/:id', auth(admin, superAdmin), BookingControllers.deleteBookings);
 
 export default BookingRoutes;

@@ -48,6 +48,15 @@ const deleteBookings = catchAsync(async (req, res) => {
         data: result,
     });
 });
+const bookingPayment = catchAsync(async (req, res) => {
+    const result = await BookingServices.bookingsPayment(req.params.id, req.body);
+    sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: 'Payment successfully completed!',
+        data: result,
+    });
+});
 
 export const BookingControllers = {
     createBooking,
@@ -55,4 +64,5 @@ export const BookingControllers = {
     getUsersUpcomingBookings,
     updateBookings,
     deleteBookings,
+    bookingPayment,
 };

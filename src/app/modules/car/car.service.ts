@@ -223,8 +223,6 @@ const returnCar = async (payload: { bookingId: string; endTime: string }) => {
     switch (booking?.status) {
         case BookingConstants.BookingStatus.completed:
             throw new AppError(StatusCodes.NOT_ACCEPTABLE, "Can't return completed booking!");
-        case BookingConstants.BookingStatus.approved:
-            throw new AppError(StatusCodes.NOT_ACCEPTABLE, "Can't return approved booking!");
         case BookingConstants.BookingStatus.canceled:
             throw new AppError(StatusCodes.NOT_ACCEPTABLE, "Can't return canceled booking!");
 
@@ -245,7 +243,7 @@ const returnCar = async (payload: { bookingId: string; endTime: string }) => {
 
         const updatedBooking = await Booking.findByIdAndUpdate(
             booking?._id,
-            { status: BookingConstants.BookingStatus.completed },
+            { status: BookingConstants.BookingStatus.completed, endTime: payload?.endTime },
             { new: true, session }
         );
 

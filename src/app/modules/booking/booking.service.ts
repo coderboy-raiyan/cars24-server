@@ -14,6 +14,7 @@ import User from '../user/user.model';
 import { BookingConstants } from './booking.constant';
 import { TBooking } from './booking.interface';
 import Booking from './booking.model';
+import { BookingUtils } from './booking.utils';
 
 const createBookingsInToDB = async (payload: TBooking & Partial<TRider>) => {
     const user = await User.findById(payload?.user);
@@ -45,23 +46,6 @@ const createBookingsInToDB = async (payload: TBooking & Partial<TRider>) => {
             { session }
         );
 
-        const riderDataForBooking = {};
-
-        if (payload?.nidNo) {
-            riderDataForBooking['nidNo'] = payload.nidNo;
-        }
-        if (payload?.passportNo) {
-            riderDataForBooking['passportNo'] = payload.passportNo;
-        }
-        if (payload?.drivingLicense) {
-            riderDataForBooking['drivingLicense'] = payload.drivingLicense;
-        }
-
-        await Rider.findOneAndUpdate({ user: user?._id }, riderDataForBooking, {
-            session,
-            new: true,
-        });
-
         await session.commitTransaction();
         await session.endSession();
         return booking[0];
@@ -91,6 +75,11 @@ const getUsersUpcomingBookings = async (id: string) => {
             {
                 status: {
                     $ne: BookingConstants.BookingStatus.approved,
+                },
+            },
+            {
+                paymentStatus: {
+                    $ne: BookingConstants.PaymentStatus.completed,
                 },
             },
         ],
@@ -154,10 +143,97 @@ const deleteBookingFromDB = async (id: string) => {
     return result;
 };
 
+const bookingsPayment = async (
+    id: string,
+    payload: {
+        nidNumber?: string;
+        passportNumber?: string;
+        drivingLicenseNumber: string;
+    }
+) => {
+    const booking = await Booking.findById(id);
+    if (!booking) {
+        throw new AppError(StatusCodes.NOT_FOUND, 'Booking not found!');
+    }
+    if (!booking?.isApproved) {
+        throw new AppError(StatusCodes.NOT_ACCEPTABLE, 'Booking is not approved yet!');
+    }
+    if (booking?.status === BookingConstants.BookingStatus.canceled) {
+        throw new AppError(StatusCodes.NOT_ACCEPTABLE, 'Booking has been canceled!');
+    }
+    if (booking?.status !== BookingConstants.BookingStatus.completed) {
+        throw new AppError(StatusCodes.NOT_ACCEPTABLE, "Sorry can't pay. Car didn't returned!");
+    }
+    if (booking?.paymentStatus !== BookingConstants.PaymentStatus.pending) {
+        throw new AppError(StatusCodes.NOT_ACCEPTABLE, 'Payment already completed!');
+    }
+
+    const user = await User.findById(booking?.user);
+
+    if (!user) {
+        throw new AppError(StatusCodes.NOT_FOUND, 'User not found!');
+    }
+
+    const rider = await Rider.findOne({ user: user?._id });
+
+    if (!rider) {
+        throw new AppError(StatusCodes.NOT_FOUND, 'User not found!');
+    }
+
+    const car = await Car.findById(booking?.car);
+
+    if (!car) {
+        throw new AppError(StatusCodes.NOT_FOUND, 'Car not found!');
+    }
+
+    const session = await mongoose.startSession();
+
+    try {
+        session.startTransaction();
+
+        const paymentData = {
+            startTime: booking?.startTime,
+            endTime: booking?.endTime,
+            user,
+            car,
+        };
+
+        const stripePayment = await BookingUtils.makeStripePayment(paymentData);
+
+        const updatedRider = await Rider.findByIdAndUpdate(rider?._id, payload, {
+            new: true,
+            session,
+        });
+
+        if (!updatedRider) {
+            throw new AppError(StatusCodes.INTERNAL_SERVER_ERROR, 'Failed to update Rider!');
+        }
+
+        const updatedBooking = await Booking.findByIdAndUpdate(
+            booking?._id,
+            { paymentStatus: BookingConstants.PaymentStatus.completed },
+            { session, new: true }
+        );
+
+        if (!updatedBooking) {
+            throw new AppError(StatusCodes.INTERNAL_SERVER_ERROR, 'Failed to update Booking!');
+        }
+
+        await session.commitTransaction();
+        await session.endSession();
+        return stripePayment;
+    } catch (error) {
+        await session.abortTransaction();
+        await session.endSession();
+        throw new Error(error);
+    }
+};
+
 export const BookingServices = {
     createBookingsInToDB,
     getAllBookingsFromDB,
     getUsersUpcomingBookings,
     updateBookingInToDB,
     deleteBookingFromDB,
+    bookingsPayment,
 };

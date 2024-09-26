@@ -7,25 +7,15 @@ const timeValidationSchema = z.string().refine((val) => {
 });
 
 const createBookingValidationSchema = z.object({
-    body: z
-        .object({
-            date: z.string().refine((val) => {
-                const parsedDate = parse(val, 'yyyy-MM-dd', new Date());
-                return isValid(parsedDate);
-            }),
-            user: z.string(),
-            car: z.string(),
-            nidNo: z.string().optional(),
-            passportNo: z.string().optional(),
-            drivingLicense: z.string(),
-            startTime: timeValidationSchema,
-        })
-        .refine(
-            (data) => {
-                return !data?.nidNo || !data?.passportNo;
-            },
-            { message: 'Please provide your NID or Passport Number!' }
-        ),
+    body: z.object({
+        date: z.string().refine((val) => {
+            const parsedDate = parse(val, 'yyyy-MM-dd', new Date());
+            return isValid(parsedDate);
+        }),
+        user: z.string(),
+        car: z.string(),
+        startTime: timeValidationSchema,
+    }),
 });
 const updateBookingValidationSchema = z.object({
     body: z.object({
@@ -41,8 +31,21 @@ const updateBookingValidationSchema = z.object({
     }),
 });
 
+const bookingPaymentValidationSchema = z.object({
+    body: z
+        .object({
+            nidNumber: z.string().optional(),
+            passportNumber: z.string().optional(),
+            drivingLicenseNumber: z.string(),
+        })
+        .refine((data) => data.nidNumber || data.passportNumber, {
+            message: 'NID or Passport number must be needed!',
+        }),
+});
+
 export const BookingValidations = {
     createBookingValidationSchema,
     updateBookingValidationSchema,
     timeValidationSchema,
+    bookingPaymentValidationSchema,
 };
