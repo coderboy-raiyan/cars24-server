@@ -58,7 +58,7 @@ const createBookingsInToDB = async (payload: TBooking & Partial<TRider>) => {
 
 const getAllBookingsFromDB = async (query: Record<string, unknown>) => {
     const BookingModelQuery = new QueryBuilder(Booking, query).filter(['date']).sort();
-    const bookings = await BookingModelQuery.ModelQuery;
+    const bookings = await BookingModelQuery.ModelQuery.populate('user').populate('car');
     return bookings;
 };
 
@@ -101,8 +101,6 @@ const updateBookingInToDB = async (
     switch (booking?.status) {
         case BookingConstants.BookingStatus.completed:
             throw new AppError(StatusCodes.NOT_ACCEPTABLE, "Can't update completed booking!");
-        case BookingConstants.BookingStatus.approved:
-            throw new AppError(StatusCodes.NOT_ACCEPTABLE, "Can't update approved booking!");
         case BookingConstants.BookingStatus.canceled:
             throw new AppError(StatusCodes.NOT_ACCEPTABLE, "Can't update canceled booking!");
 

@@ -71,7 +71,7 @@ const carSchema = new Schema<TCar>(
 );
 // filter out deleted cars
 carSchema.pre('find', function () {
-    this.find({ isDeleted: { $ne: true }, status: { $ne: CarConstants.CarStatus.unavailable } });
+    this.find({ isDeleted: { $ne: true } });
 });
 
 const Car = model<TCar>('Car', carSchema);
