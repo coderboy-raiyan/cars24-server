@@ -4,6 +4,7 @@ import { CarConstants } from './car.constant';
 
 const createCarValidationSchema = z.object({
     name: z.string().max(60),
+    brand: z.string().max(20),
     carType: z.enum(CarConstants.CarTypeEnum as [string, ...string[]]),
     color: z.array(z.string()),
     description: z.string(),

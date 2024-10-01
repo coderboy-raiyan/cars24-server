@@ -11,7 +11,7 @@ import { TCar, TCarImages } from './car.interface';
 import Car from './car.model';
 
 const createCarInToDB = async (payload: TCar, files: Express.Multer.File[]) => {
-    const isCarExists = await Car.findOne({ name: payload?.name });
+    const isCarExists = await Car.findOne({ name: payload?.name, isDeleted: { $ne: true } });
 
     if (isCarExists) {
         throw new AppError(StatusCodes.BAD_REQUEST, `${isCarExists?.name} already exists!`);

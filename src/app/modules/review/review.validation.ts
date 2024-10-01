@@ -5,6 +5,7 @@ const createReviewValidationSchema = z.object({
         description: z.string(),
         user: z.string(),
         car: z.string(),
+        bookingId: z.string(),
         ratings: z.number().min(0).max(5),
     }),
 });

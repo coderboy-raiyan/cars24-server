@@ -9,6 +9,11 @@ const carSchema = new Schema<TCar>(
             required: true,
             trim: true,
         },
+        brand: {
+            type: String,
+            required: true,
+            trim: true,
+        },
         carType: {
             type: String,
             enum: CarConstants.CarTypeEnum,
@@ -65,6 +70,16 @@ const carSchema = new Schema<TCar>(
             type: String,
             enum: CarConstants.CarStatusEnum,
             default: 'available',
+        },
+        review: {
+            totalRating: {
+                type: Number,
+                default: 0,
+            },
+            avgRating: {
+                type: Number,
+                default: 0,
+            },
         },
     },
     { timestamps: true }

@@ -1,13 +1,13 @@
 import { StatusCodes } from 'http-status-codes';
+import mongoose from 'mongoose';
 import QueryBuilder from '../../builder/QueryBuilder';
 import AppError from '../../errors/AppError';
-import { BookingConstants } from '../booking/booking.constant';
 import Booking from '../booking/booking.model';
 import Car from '../car/car.model';
 import { TReview } from './review.interface';
 import Review from './review.model';
 
-const createReviewInToDB = async (payload: TReview) => {
+const createReviewInToDB = async (payload: TReview & { bookingId: string }) => {
     const car = await Car.findById(payload?.car);
 
     if (!car) {
@@ -16,15 +16,18 @@ const createReviewInToDB = async (payload: TReview) => {
 
     const verifyUserBooking = await Booking.findOne(
         {
+            _id: payload?.bookingId,
             user: payload?.user,
             car: payload?.car,
-            status: BookingConstants.BookingStatus.completed,
         },
         { _id: 1 }
-    ).sort({ createdAt: -1 });
+    );
 
     if (!verifyUserBooking) {
-        throw new AppError(StatusCodes.NOT_ACCEPTABLE, 'Your not allowed to give review!');
+        throw new AppError(
+            StatusCodes.NOT_ACCEPTABLE,
+            'Please ride this car before giving your opinion!'
+        );
     }
 
     const verifyIfReviewExists = await Review.findOne(
@@ -33,11 +36,48 @@ const createReviewInToDB = async (payload: TReview) => {
     );
 
     if (verifyIfReviewExists) {
-        throw new AppError(StatusCodes.NOT_ACCEPTABLE, 'You have already given your opinion!');
+        throw new AppError(StatusCodes.NOT_ACCEPTABLE, 'You have already reviewed this car!');
     }
 
-    const review = await Review.create(payload);
-    return review;
+    const session = await mongoose.startSession();
+
+    try {
+        session.startTransaction();
+
+        delete payload?.bookingId;
+        const review = await Review.create([payload], { session });
+
+        const countReviews = await Review.aggregate(
+            [
+                { $match: { car: car?._id } },
+                {
+                    $group: {
+                        _id: null,
+                        ratingsCount: { $avg: '$ratings' },
+                        totalRatings: { $sum: 1 },
+                    },
+                },
+            ],
+            { session }
+        );
+
+        await Car.findByIdAndUpdate(
+            car?._id,
+            {
+                'review.avgRating': countReviews[0]?.ratingsCount,
+                'review.totalRating': countReviews[0]?.totalRatings,
+            },
+            { session }
+        );
+
+        await session.commitTransaction();
+        await session.endSession();
+        return review[0];
+    } catch (error) {
+        await session.abortTransaction();
+        await session.endSession();
+        throw Error(error);
+    }
 };
 
 const getAllReviewsFromDB = async (query: Record<string, unknown>) => {
