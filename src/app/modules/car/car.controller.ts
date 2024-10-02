@@ -21,6 +21,15 @@ const getAllCars = catchAsync(async (req, res) => {
         data: result,
     });
 });
+const getFeaturedCars = catchAsync(async (req, res) => {
+    const result = await CarServices.getFeaturedCarsFromDB();
+    sendResponse(res, {
+        success: true,
+        message: 'Car retrieved Successfully',
+        statusCode: StatusCodes.OK,
+        data: result,
+    });
+});
 const getSingleCars = catchAsync(async (req, res) => {
     const result = await CarServices.getSingleCarsFromDB(req.params.id);
     sendResponse(res, {
@@ -67,6 +76,7 @@ export const CarControllers = {
     getAllCars,
     updateCar,
     getSingleCars,
+    getFeaturedCars,
     deleteCar,
     returnCar,
 };

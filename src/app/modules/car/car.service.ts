@@ -48,6 +48,10 @@ const getAllCarsFromDB = async (query: Record<string, unknown>) => {
     const result = await CarModelQuery.ModelQuery;
     return result;
 };
+const getFeaturedCarsFromDB = async () => {
+    const result = await Car.find({ 'review.avgRating': { $gte: 4.0 } });
+    return result;
+};
 
 const getSingleCarsFromDB = async (id: string) => {
     const result = await Car.findById(id);
@@ -278,5 +282,6 @@ export const CarServices = {
     updateCarIntoDB,
     getSingleCarsFromDB,
     deleteCarFromDB,
+    getFeaturedCarsFromDB,
     returnCar,
 };

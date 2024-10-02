@@ -35,6 +35,7 @@ CarRoutes.post(
 );
 
 CarRoutes.get('/', CarControllers.getAllCars);
+CarRoutes.get('/featured', CarControllers.getFeaturedCars);
 CarRoutes.get('/:id', CarControllers.getSingleCars);
 
 CarRoutes.patch(
